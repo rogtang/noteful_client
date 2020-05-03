@@ -3,16 +3,52 @@ import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './Note.css'
+import ApiContext from '../ApiContext'
+import config from '../config'
 
-export default function Note(props) {
+export default class Note extends React.Component {
+  static contextType = ApiContext;
+
+  static defaultProps ={
+    onDeleteNote: () => {},
+  }
+
+  handleClickDelete = e => {
+    e.preventDefault()
+    const noteId = this.props.id
+
+    fetch(`${config.API_ENDPOINT}/notes/${noteId}`, {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/json'
+      },
+    })
+      .then(res => {
+        if (!res.ok)
+          return res.json().then(e => Promise.reject(e))
+        
+      })
+      .then(() => {
+        this.context.handleDeleteNote(noteId)
+        // allow parent to perform extra behaviour
+        this.props.onDeleteNote(noteId)
+      })
+      .catch(error => {
+        console.error({ error })
+      })
+  }
+  
+  render() {
+    const { name, id, modified } = this.props
   return (
+    
     <div className='Note'>
       <h2 className='Note__title'>
-        <Link to={`/note/${props.id}`}>
-          {props.name}
+        <Link to={`/note/${id}`}>
+          {name}
         </Link>
       </h2>
-      <button className='Note__delete' type='button'>
+      <button className='Note__delete' type='button' onClick={this.handleClickDelete}>
         <FontAwesomeIcon icon='trash-alt' />
         {' '}
         remove
@@ -21,9 +57,13 @@ export default function Note(props) {
         <div className='Note__dates-modified'>
           Modified
           {' '}
+          {/*<span className='Date'>
+              {format(modified, 'Do MMM YYYY')}
+          </span>*/}
         </div>
       </div>
     </div>
   )
+  }
 }
 

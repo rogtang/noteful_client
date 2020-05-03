@@ -6,7 +6,9 @@ import NotePageNav from './NotePageNav/NotePageNav';
 import NoteListMain from './NoteListMain/NoteListMain';
 import NotePageMain from './NotePageMain/NotePageMain';
 import dummyStore from './dummy-store';
+import ApiContext from './ApiContext';
 import './App.css'
+import config from './config'
 
 export const findFolder = (folders=[], folderId) =>
   folders.find(folder => folder.id === folderId)
@@ -23,6 +25,8 @@ export const getNotesForFolder = (notes=[], folderId) => (
 export const countNotesForFolder = (notes=[], folderId) =>
   notes.filter(note => note.folderId === folderId).length
 
+
+
 class App extends React.Component {
 
   state = {
@@ -31,13 +35,38 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    //mock api here
-    setTimeout(() => this.setState(dummyStore), 600);
+    Promise.all([
+      fetch(`${config.API_ENDPOINT}/notes`),
+      fetch(`${config.API_ENDPOINT}/folders`)
+  ])
+      .then(([notesRes, foldersRes]) => {
+          if (!notesRes.ok)
+              return notesRes.json().then(e => Promise.reject(e));
+          if (!foldersRes.ok)
+              return foldersRes.json().then(e => Promise.reject(e));
+
+          return Promise.all([notesRes.json(), foldersRes.json()]);
+      })
+      .then(([notes, folders]) => {
+        console.log(notes)
+          this.setState({notes, folders});
+      })
+      .catch(error => {
+          console.error({error});
+      });
+  }
+
+   handleDeleteNote = (noteId) => {
+    //store update state in variable
+    const newNotes = this.state.notes.filter(note => note.id !== noteId)
+    this.setState({
+      notes: newNotes
+    })
   }
 
 
   renderNavRoutes() {
-    const {notes, folders} = this.state;
+    //const {notes, folders} = this.state;
     //The main route and the folder route could use the same component with a different list of notes passed in as props.
     return (
       <div>
@@ -45,31 +74,20 @@ class App extends React.Component {
             <Route 
               exact key={path}
                     path={path}
-                    render={routeProps => (
-                      <NoteListNav 
-                          folders={folders}
-                          notes={notes}
-                          {...routeProps} />
-                    )}
+                    component={NoteListNav}
                     />
         ))}
             <Route
                     path="/note/:noteId"
-                    render={routeProps => {
-                        const {noteId} = routeProps.match.params;
-                        const note = findNote(notes, noteId) || {};
-                        const folder = findFolder(folders, note.folderId);
-                        return <NotePageNav {...routeProps} folder={folder} />;
-                    }}
-                />
-                <Route path="/add-folder" component={NotePageNav} />
-                <Route path="/add-note" component={NotePageNav} />
+                    component={NotePageNav}/>
+            <Route path="/add-folder" component={NotePageNav} />
+            <Route path="/add-note" component={NotePageNav} />
       </div>
     );
   }
 
   renderMainRoutes() {
-    const {notes} = this.state;
+    //const {notes} = this.state;
     return (
         <>
             {['/', '/folder/:folderId'].map(path => (
@@ -77,34 +95,25 @@ class App extends React.Component {
                     exact
                     key={path}
                     path={path}
-                    render={routeProps => {
-                        const {folderId} = routeProps.match.params;
-                        const notesForFolder = getNotesForFolder(notes, folderId);
-                        return (
-                            <NoteListMain
-                                {...routeProps}
-                                notes={notesForFolder}
-                            />
-                        );
-                    }}
-                />
+                    component = {NoteListMain}/>
             ))}
             <Route
                 path="/note/:noteId"
-                render={routeProps => {
-                    const {noteId} = routeProps.match.params;
-                    const note = findNote(notes, noteId);
-                    return <NotePageMain {...routeProps} note={note} />;
-                }}
-            />
+                component={NotePageMain}/>
         </>
     );
 }
 
   
   render() {
+    const value = {
+      folders: this.state.folders,
+      notes: this.state.notes,
+      handleDeleteNote: this.handleDeleteNote
+    }
   
     return (
+    <ApiContext.Provider value={value}>
     <div className='App'>
       <nav className="App__nav">{this.renderNavRoutes()}</nav>
       <header className='app__header'>
@@ -115,6 +124,7 @@ class App extends React.Component {
       </header>
       <main className="App__main">{this.renderMainRoutes()}</main>
     </div>
+    </ApiContext.Provider>
   );
   }
 }
