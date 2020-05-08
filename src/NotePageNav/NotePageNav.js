@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CircleButton from '../CircleButton/CircleButton'
 import './NotePageNav.css'
 import ApiContext from '../ApiContext';
-import { findNote, findFolder } from '../App'
+import { findNote, findFolder } from '../App';
 
 export default class NotePageNav extends React.Component {
   static contextType = ApiContext;
@@ -45,3 +45,4 @@ export default class NotePageNav extends React.Component {
   )
 }
 }
+

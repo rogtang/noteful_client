@@ -5,7 +5,8 @@ import Note from '../Note/Note'
 import CircleButton from '../CircleButton/CircleButton'
 import './NoteListMain.css'
 import ApiContext from '../ApiContext'
-import { getNotesForFolder } from '../App'
+import { getNotesForFolder } from '../App';
+import propTypes from 'prop-types';
 
 export default class NoteListMain extends React.Component {
   static contextType = ApiContext;
@@ -19,6 +20,7 @@ export default class NoteListMain extends React.Component {
     const { folderId } = this.props.match.params
     const { notes=[] } = this.context
     const notesForFolder = getNotesForFolder(notes, folderId)
+    console.log(this.context)
   return (
     <section className='NoteListMain'>
       <ul>
@@ -41,10 +43,19 @@ export default class NoteListMain extends React.Component {
         >
           <FontAwesomeIcon icon='plus' />
           <br />
-          Note
+          Add Note
         </CircleButton>
       </div>
     </section>
   )
         }
 }
+NoteListMain.propTypes = {
+  notes: propTypes.arrayOf(propTypes.shape({ 
+    id: propTypes.string.isRequired,
+    note_name: propTypes.string.isRequired,
+    content: propTypes.string.isRequired,
+    modified: propTypes.string.isRequired,
+    folder_id: propTypes.number.isRequired
+  }))
+};

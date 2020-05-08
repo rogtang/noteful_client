@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import './Note.css'
-import ApiContext from '../ApiContext'
-import config from '../config'
+import ApiContext from '../ApiContext';
+import config from '../config';
+import propTypes from 'prop-types';
 
 export default class Note extends React.Component {
   static contextType = ApiContext;
@@ -29,8 +29,7 @@ export default class Note extends React.Component {
         
       })
       .then(() => {
-        this.context.handleDeleteNote(noteId)
-        // allow parent to perform extra behaviour
+        this.context.deleteNote(noteId)
         this.props.onDeleteNote(noteId)
       })
       .catch(error => {
@@ -40,6 +39,7 @@ export default class Note extends React.Component {
   
   render() {
     const { name, id, modified } = this.props
+    //const formatDate = format(new Date(modified), 'hh:mm a MMMM do, yyyy')
   return (
     
     <div className='Note'>
@@ -49,17 +49,17 @@ export default class Note extends React.Component {
         </Link>
       </h2>
       <button className='Note__delete' type='button' onClick={this.handleClickDelete}>
-        <FontAwesomeIcon icon='trash-alt' />
-        {' '}
         remove
       </button>
       <div className='Note__dates'>
         <div className='Note__dates-modified'>
-          Modified
-          {' '}
+        <p>{modified}</p>
+        {/*<span className='Date'>
+            {formatDate}
+  </span>*/}
           {/*<span className='Date'>
               {format(modified, 'Do MMM YYYY')}
-          </span>*/}
+          </span>*/} 
         </div>
       </div>
     </div>
@@ -67,3 +67,13 @@ export default class Note extends React.Component {
   }
 }
 
+
+Note.propTypes = {
+  note: propTypes.shape({
+    id: propTypes.string.isRequired,
+    note_name: propTypes.string.isRequired,
+    content: propTypes.string.isRequired,
+    modified: propTypes.string.isRequired,
+    folder_id: propTypes.number.isRequired
+  })
+}

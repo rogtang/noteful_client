@@ -5,6 +5,7 @@ import CircleButton from '../CircleButton/CircleButton'
 import { countNotesForFolder } from '../App'
 import './NoteListNav.css'
 import ApiContext from '../ApiContext';
+import propTypes from 'prop-types';
 
 
 export default class NoteListNav extends React.Component {
@@ -39,10 +40,17 @@ export default class NoteListNav extends React.Component {
           >
             <FontAwesomeIcon icon='plus' />
             <br />
-            Folder
+            Add Folder
           </CircleButton>
         </div>
       </div>
     )
           }
+  }
+
+  NoteListNav.propTypes = {
+    folders: propTypes.arrayOf(propTypes.shape({
+      id: propTypes.number.isRequired,
+      folder_name: propTypes.string.isRequired
+    })) 
   }
