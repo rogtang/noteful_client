@@ -38,7 +38,7 @@ export default class Note extends React.Component {
   }
   
   render() {
-    const { name, id, modified } = this.props
+    const { name, id, modified, content } = this.props
     //const formatDate = format(new Date(modified), 'hh:mm a MMMM do, yyyy')
   return (
     
@@ -51,6 +51,7 @@ export default class Note extends React.Component {
       <button className='Note__delete' type='button' onClick={this.handleClickDelete}>
         remove
       </button>
+      {content}
       <div className='Note__dates'>
         <div className='Note__dates-modified'>
         <p>{modified}</p>
