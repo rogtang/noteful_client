@@ -13,20 +13,20 @@ import ErrorBoundary from './ErrorBoundary';
 import AddFolder from './AddFolder/AddFolder';
 import AddNote from './AddNote/AddNote';
 
-export const findFolder = (folders=[], folderId) =>
-  folders.find(folder => folder.id === folderId)
+export const findFolder = (folders=[], folder_id) =>
+  folders.find(folder => folder.id === folder_id)
 
-export const findNote = (notes=[], noteId) =>
-  notes.find(note => note.id === noteId)
+export const findNote = (notes=[], note_id) =>
+  notes.find(note => note.id === note_id)
 
-export const getNotesForFolder = (notes=[], folderId) => (
-  (!folderId)
+export const getNotesForFolder = (notes=[], folder_id) => (
+  (!folder_id)
     ? notes
-    : notes.filter(note => note.folderId === folderId)
+    : notes.filter(note => note.folder_id.toString() === folder_id.toString())
 )
 
-export const countNotesForFolder = (notes=[], folderId) =>
-  notes.filter(note => note.folderId === folderId).length
+export const countNotesForFolder = (notes=[], folder_id) =>
+  notes.filter(note => note.folder_id === folder_id).length
 
 
 
@@ -39,8 +39,8 @@ class App extends React.Component {
 
   componentDidMount() {
     Promise.all([
-      fetch(`${config.API_ENDPOINT}/notes/`),
-      fetch(`${config.API_ENDPOINT}/folders/`)
+      fetch(`${config.API_ENDPOINT}/notes`),
+      fetch(`${config.API_ENDPOINT}/folders`)
   ])
       .then(([notesRes, foldersRes]) => {
           if (!notesRes.ok)
@@ -81,11 +81,9 @@ class App extends React.Component {
 
 
   renderNavRoutes() {
-    //const {notes, folders} = this.state;
-    //The main route and the folder route could use the same component with a different list of notes passed in as props.
     return (
       <div>
-        {['/', '/folder/:folderId'].map(path => (
+        {['/', '/folder/:folder_id'].map(path => (
             <Route 
               exact key={path}
                     path={path}
@@ -105,7 +103,7 @@ class App extends React.Component {
     //const {notes} = this.state;
     return (
         <>
-            {['/', '/folder/:folderId'].map(path => (
+            {['/', '/folder/:folder_id'].map(path => (
                 <Route
                     exact
                     key={path}
